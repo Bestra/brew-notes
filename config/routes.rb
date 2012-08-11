@@ -1,4 +1,12 @@
 BeerApp::Application.routes.draw do
+  get "static_pages/home"
+
+  get "static_pages/brew"
+
+  get "static_pages/plan"
+
+  get "static_pages/buy"
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
