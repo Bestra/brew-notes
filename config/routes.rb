@@ -1,7 +1,8 @@
 BeerApp::Application.routes.draw do
 
   resources :users
-
+  resources :fermentables, only: [:index, :show, :new, :create]
+  resources :hops, only: [:index, :show, :new, :create]
   root to: 'static_pages#home'
   match '/signup', to: 'users#new'
 

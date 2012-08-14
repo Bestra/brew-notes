@@ -1,0 +1,8 @@
+<h1>Fermentables</h1>
+
+<ul class="grain">
+  <% @fermentables.each do |ferm| %>
+    <li><%= ferm.name %> ppg: <%= ferm.ppg%> Points per pound per gallon</li>
+    <% end %>
+</ul>
+
