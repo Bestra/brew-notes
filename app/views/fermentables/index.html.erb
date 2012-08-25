@@ -1,8 +1,24 @@
 <h1>Fermentables</h1>
 
-<ul class="grain">
-  <% @fermentables.each do |ferm| %>
-    <li><%= ferm.name %> ppg: <%= ferm.ppg%> Points per pound per gallon</li>
-    <% end %>
-</ul>
+<div class="row">
+  <div class="span8 offset4">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th><th>Maximum Yield</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= link_to "New", new_fermentable_path %></td><td></td>
+        </tr>
+        <% @fermentables.each do |ferm| %>
+          <tr>
+            <td class="table-title"><%=link_to ferm.name, edit_fermentable_path(ferm), class: "table-title" %></td><td> <%= ferm.ppg%> PPG</td>
+          </tr>
+          <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
 

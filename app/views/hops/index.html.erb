@@ -1,7 +1,20 @@
 <h1>All your hops are belong to us</h1>
+<div class="row">
+  <div class= "span6 offset3">
+    <%= link_to "New", new_hop_path %> <br />
+    <input type="text" id= "auto_complete" class="span3" style="margin: 0 auto;"> 
+    <%= javascript_tag "var autocomplete_items = #{ @hops.map(&:name).to_json };" %>
+    <script type="text/javascript">
+      jQuery(document).ready(function() {
+          $('#auto_complete').typeahead({source: autocomplete_items});
+          });
+        </script>
+        <dl class="dl-horizontal">
+          <% @hops.each do |hop| %>
+            <dt><%=link_to hop.name, edit_hop_path(hop), class: "table-title"%> </dt> <dd><%= hop.description %></dd>
+          <% end %>
+        </dl>
+      </div>
+    </div>
 
-<ul class="hops">
-  <% @hops.each do |hop| %>
-    <li><%= hop.name %> AAU: <%= hop.aau%>%</li>
-    <% end %>
-</ul>
+    *Most hop descriptions graciously taken from BYO magazine.

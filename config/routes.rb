@@ -1,13 +1,21 @@
 BeerApp::Application.routes.draw do
 
+  resources :recipes
   resources :users
-  resources :fermentables, only: [:index, :show, :new, :create]
-  resources :hops, only: [:index, :show, :new, :create]
+  resources :fermentables
+  resources :hops
+  resources :recipes
+  resource :hop_manifests, only: [:create, :destroy]
+  resource :fermentable_manifests, only: [:create, :destroy]
+  
+  resources :sessions, only: [:new, :create, :destroy]
   root to: 'static_pages#home'
-  match '/signup', to: 'users#new'
 
   match '/home', to: 'static_pages#home'
 
+  match '/signup' , to: 'users#new'
+  match '/signin' , to: 'sessions#new'
+  match '/signout', to: 'sessions#destroy', via: :delete
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

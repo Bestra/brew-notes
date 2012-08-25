@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120814015754) do
+ActiveRecord::Schema.define(:version => 20120818191108) do
 
   create_table "fermentable_manifests", :force => true do |t|
     t.integer  "recipe_id"
@@ -39,16 +39,20 @@ ActiveRecord::Schema.define(:version => 20120814015754) do
     t.string   "notes"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.float    "aau"
+    t.float    "aa_percent"
   end
 
   create_table "hops", :force => true do |t|
     t.string   "name"
-    t.float    "aau"
     t.float    "unit_price"
     t.string   "weight_unit"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
+    t.string   "description"
   end
+
+  add_index "hops", ["name"], :name => "index_hops_on_name", :unique => true
 
   create_table "recipes", :force => true do |t|
     t.string   "name"
@@ -57,8 +61,10 @@ ActiveRecord::Schema.define(:version => 20120814015754) do
     t.integer  "ibu"
     t.float    "og"
     t.float    "fg"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+    t.string   "description"
+    t.float    "final_volume"
   end
 
   create_table "users", :force => true do |t|

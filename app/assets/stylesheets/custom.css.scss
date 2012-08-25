@@ -68,3 +68,21 @@ p {
   color: #fff;
   text-decoration: none;
 }
+
+/*recipe page */
+
+.recipe-header h1, h2 {
+  text-align: left;
+  line-height: 1;
+  margin-bottom: 0px;
+}
+/* Ingredients list */
+.table-title {
+  font-size: 1.2em;
+  letter-spacing: -1px;
+  color: #999;
+  &:hover {
+    text-decoration: none;
+  }
+}
+

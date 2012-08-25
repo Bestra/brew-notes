@@ -2,7 +2,8 @@
   <div class="span6 offset3">
     <%= form_for ( @fermentable ) do |f| %>
       <%= render 'fields', f: f %>
-      <%= f.submit "Create Ingredient", class: "btn btn-large btn-primary" %>
+      <%= f.submit "Update Ingredient", class: "btn btn-large btn-primary" %>
     <% end %>
+    <%= link_to "Delete", @fermentable, method: :delete%>
   </div>
 </div>
