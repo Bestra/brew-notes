@@ -13,4 +13,5 @@
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap-typeahead
-//= require_tree .
+//= require_tree ./global
+//= require jquery_nested_form

@@ -1,0 +1,72 @@
+-content_for :head do
+  = javascript_include_tag 'recipe_show.js'
+
+.row
+  .span6.recipe-header
+    h1 = @recipe.name
+    h2 = @recipe.description
+  .span4
+    p.gravity_label
+      | OG 
+      span#og =@recipe.og
+      span.label.label-default Lock
+    p.gravity_label
+      | FG 
+      span#ft =@recipe.fg
+    span.gravity_label#volume =@recipe.final_volume
+    |  Gallons
+.row
+  .span8
+    p Fermentables
+    p Assume 70% mash efficiency
+    table.table
+      tr
+        th 
+        th Name
+        th PPG
+        th Oz
+        th Points
+        th %OG
+      - @recipe.fermentable_manifests.each do |ferm|
+        -if !ferm.fermentable.nil?
+          tr.fermentable_entry id="#{ferm.id}"
+            td =link_to "remove", ferm, :method => :delete
+            td = ferm.fermentable.name
+            td.ppg = ferm.fermentable.ppg
+            td.amount = ferm.amount
+            td.points 
+            td.percent_og
+
+    =simple_form_for @new_ferm do |f|
+      div.control-group
+        =f.collection_select :fermentable_id, Fermentable.all, :id, :name
+        =f.text_field :amount, class: 'input-small' , placeholder: "ounces"
+        =f.hidden_field :recipe_id
+        =f.button :submit, "Add"
+
+.row
+  .span8
+    p Hops
+    table.table
+      tr
+        th Name
+        th AAU
+        th Boil Time
+        th IBU
+    - if @recipe.hops.any?
+      - @recipe.hops.each do |hop|
+        tr
+          td = hop.name
+          td = hop.hop_manifest.boil_time
+          td = hop.hop_manifest.aau
+    =simple_nested_form_for(@recipe, :html => {:class => 'form-inline'}) do |f|
+      =f.fields_for :hop_manifests do |fm|
+        div.control-group
+          =fm.collection_select :hop_id, Hop.all, :id, :name
+          =fm.text_field :aau, :class => 'input-mini'
+          span.hop-amount AAU / IBU  
+          =fm.text_field :boil_time,  :class => 'input-mini'
+          span.boil-time min boil  
+
+          =fm.button :submit, "Add"
+      =f.link_to_add "Add hops", :hop_manifests
