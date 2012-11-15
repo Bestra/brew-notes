@@ -1,6 +1,12 @@
 BeerApp::Application.routes.draw do
 
 
+  get "hop_manifests/create"
+
+  get "hop_manifests/update"
+
+  get "hop_manifests/delete"
+
   resources :recipes
   resources :fermentables
   resources :hops
@@ -8,9 +14,8 @@ BeerApp::Application.routes.draw do
   resources :hop_manifests, only: [:create,:update,:destroy]
   resources :fermentable_manifests, only: [:create,:update,:destroy]
   
-  root to: 'static_pages#home'
+  root to: 'recipes#index'
 
-  match '/home', to: 'static_pages#home'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

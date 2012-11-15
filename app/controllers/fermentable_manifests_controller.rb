@@ -1,6 +1,4 @@
 class FermentableManifestsController < ApplicationController
-  def new
-  end
 
   def create
     @fm = FermentableManifest.new(params[:fermentable_manifest])

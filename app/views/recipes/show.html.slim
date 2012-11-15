@@ -1,6 +1,5 @@
 -content_for :head do
   = javascript_include_tag 'recipe_show.js'
-
 .row
   .span6.recipe-header
     h1 = @recipe.name
@@ -34,39 +33,54 @@
             td = ferm.fermentable.name
             td.ppg = ferm.fermentable.ppg
             td.amount = ferm.amount
-            td.points 
+            td.points_og
             td.percent_og
 
     =simple_form_for @new_ferm do |f|
       div.control-group
         =f.collection_select :fermentable_id, Fermentable.all, :id, :name
         =f.text_field :amount, class: 'input-small' , placeholder: "ounces"
+        span id="ferm_type_buttons" class="btn-group" data-toggle="buttons-radio"
+          button id="oz" type="button" class="btn active"oz 
+          button id="og" type="button" class="btn"pts OG
+        /span#ozLabel.label.fermentable-input-label.label-success oz
+        /span#ptsLabel.label.fermentable-input-label.label-default pts
+        /span#OGLabel.label.fermentable-input-label.label-default OG pts
         =f.hidden_field :recipe_id
         =f.button :submit, "Add"
+        javascript:
+          $("span#ferm_type_buttons:first").button('toggle');
+          
 
 .row
   .span8
     p Hops
     table.table
       tr
+        th
         th Name
         th AAU
         th Boil Time
         th IBU
-    - if @recipe.hops.any?
-      - @recipe.hops.each do |hop|
-        tr
-          td = hop.name
-          td = hop.hop_manifest.boil_time
-          td = hop.hop_manifest.aau
-    =simple_nested_form_for(@recipe, :html => {:class => 'form-inline'}) do |f|
-      =f.fields_for :hop_manifests do |fm|
+      - @recipe.hop_manifests.each do |hm|
+        -if !hm.hop.nil?
+          tr
+            td =link_to "remove", hm, :method => :delete
+            td = hm.hop.name
+            td = hm.aau
+            td = hm.boil_time
+    =simple_form_for @new_hop do |h|
         div.control-group
-          =fm.collection_select :hop_id, Hop.all, :id, :name
-          =fm.text_field :aau, :class => 'input-mini'
-          span.hop-amount AAU / IBU  
-          =fm.text_field :boil_time,  :class => 'input-mini'
-          span.boil-time min boil  
-
-          =fm.button :submit, "Add"
-      =f.link_to_add "Add hops", :hop_manifests
+          =h.hidden_field :recipe_id
+          =h.collection_select :hop_id, Hop.all, :id, :name
+          =h.text_field :aau, :class => 'input-mini', placeholder: "AAUs"
+          span id="hop_type_buttons" class="btn-group" data-toggle="buttons-radio"
+            button id="aau" type="button" class="btn active"AAU 
+            button id="ibu" type="button" class="btn"IBU
+          /span.hop-amount 
+            span#AAULabel.label.hop-input-label.label-success AAU 
+            span  <b>\ </b>
+            span#IBULabel.label.hop-input-label.label-default IBU  
+          =h.text_field :boil_time,  :class => 'input-mini', placeholder: "minutes"
+          span boil time 
+          =h.button :submit, "Add"
