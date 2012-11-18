@@ -4,6 +4,11 @@ class FermentablesController < ApplicationController
   end
 
   def show
+    @fermentable = Fermentable.find(params[:id])
+    respond_to do |format|
+      format.html
+      format.json { render :json => @fermentable}
+    end
   end
 
   def edit

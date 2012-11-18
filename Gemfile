@@ -9,6 +9,7 @@ gem 'slim-rails'
 gem 'nested_form'
 gem 'simple_form'
 gem 'jquery-ui-rails'
+# gem 'd3-rails'
 
 
 # Bundle edge Rails instead:

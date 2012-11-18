@@ -1,16 +1,13 @@
 BeerApp::Application.routes.draw do
 
 
-  get "hop_manifests/create"
-
-  get "hop_manifests/update"
-
-  get "hop_manifests/delete"
-
   resources :recipes
   resources :fermentables
   resources :hops
-  resources :recipes
+  resources :recipes do
+    resources :hop_manifests, only: [:index]
+    resources :fermentable_manifests, only: [:index]
+  end
   resources :hop_manifests, only: [:create,:update,:destroy]
   resources :fermentable_manifests, only: [:create,:update,:destroy]
   

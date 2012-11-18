@@ -1,36 +1,39 @@
 -content_for :head do
   = javascript_include_tag 'recipe_show.js'
 .row
-  .span6.recipe-header
+  .span6.recipe-info#recipe-header data-url=recipe_path(@recipe.id)
     h1 = @recipe.name
     h2 = @recipe.description
   .span4
     p.gravity_label
       | OG 
-      span#og =@recipe.og
+      span#recipe_og =@recipe.og
       span.label.label-default Lock
     p.gravity_label
       | FG 
-      span#ft =@recipe.fg
-    span.gravity_label#volume =@recipe.final_volume
+      span#recipe_fg =@recipe.fg
+    p.gravity_label
+      | IBU 
+      span#recipe_ibu =@recipe.ibu
+    span.gravity_label#recipe_volume =@recipe.final_volume
     |  Gallons
 .row
   .span8
     p Fermentables
     p Assume 70% mash efficiency
-    table.table
+    table.table#fermentables_table
       tr
         th 
         th Name
         th PPG
         th Oz
-        th Points
+        th Points OG
         th %OG
       - @recipe.fermentable_manifests.each do |ferm|
         -if !ferm.fermentable.nil?
-          tr.fermentable_entry id="#{ferm.id}"
-            td =link_to "remove", ferm, :method => :delete
-            td = ferm.fermentable.name
+          tr.fermentable_entry id="#{ferm.id}" data-url=fermentable_manifest_url(ferm.id)
+            td =link_to "remove", ferm, method: "delete", remote: true
+            td.ferm-name data-title="#{ferm.fermentable.ppg} PPG" = ferm.fermentable.name
             td.ppg = ferm.fermentable.ppg
             td.amount = ferm.amount
             td.points_og
@@ -43,19 +46,18 @@
         span id="ferm_type_buttons" class="btn-group" data-toggle="buttons-radio"
           button id="oz" type="button" class="btn active"oz 
           button id="og" type="button" class="btn"pts OG
-        /span#ozLabel.label.fermentable-input-label.label-success oz
-        /span#ptsLabel.label.fermentable-input-label.label-default pts
-        /span#OGLabel.label.fermentable-input-label.label-default OG pts
         =f.hidden_field :recipe_id
+        =hidden_field_tag 'ppg' 
         =f.button :submit, "Add"
         javascript:
           $("span#ferm_type_buttons:first").button('toggle');
+          $("td.ferm-name").tooltip();
           
 
 .row
   .span8
     p Hops
-    table.table
+    table.table#hops_table
       tr
         th
         th Name

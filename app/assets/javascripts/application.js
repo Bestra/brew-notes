@@ -15,5 +15,6 @@
 //= require jquery.ui.all
 //= require bootstrap-typeahead
 //= require bootstrap-button
+//= require bootstrap-tooltip
 //= require_tree ./global
 //= require jquery_nested_form

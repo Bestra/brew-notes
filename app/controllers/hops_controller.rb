@@ -5,6 +5,10 @@ class HopsController < ApplicationController
 
   def show
     @hop = Hop.find(params[:id])
+    respond_to do |format|
+      format.html
+      format.json { render json: @hop}
+    end
   end
 
   def new

@@ -12,7 +12,9 @@ class RecipesController < ApplicationController
   def update
     @recipe = Recipe.find(params[:id])
     if @recipe.update_attributes(params[:recipe])
-      redirect_to @recipe, :notice =>"Successfully updated"
+      respond_to do |format|
+       # format.html {redirect_to @recipe, :notice =>"Successfully updated"}
+      end
     end
   end
 
@@ -20,6 +22,11 @@ class RecipesController < ApplicationController
     @recipe = Recipe.find(params[:id])
     @new_hop = @recipe.hop_manifests.build
     @new_ferm = @recipe.fermentable_manifests.build
+
+    respond_to do |format|
+      format.html
+      format.json {render json: @recipe}
+    end
   end
 
   def index
