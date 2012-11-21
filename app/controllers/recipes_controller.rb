@@ -14,6 +14,7 @@ class RecipesController < ApplicationController
     if @recipe.update_attributes(params[:recipe])
       respond_to do |format|
        # format.html {redirect_to @recipe, :notice =>"Successfully updated"}
+        format.json {render json: @recipe}
       end
     end
   end

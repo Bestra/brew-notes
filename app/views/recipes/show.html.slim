@@ -66,11 +66,12 @@
         th IBU
       - @recipe.hop_manifests.each do |hm|
         -if !hm.hop.nil?
-          tr
+          tr.hop_entry
             td =link_to "remove", hm, :method => :delete
-            td = hm.hop.name
-            td = hm.aau
-            td = hm.boil_time
+            td.name= hm.hop.name
+            td.aau = hm.aau
+            td.boil_time = hm.boil_time
+            td.ibu
     =simple_form_for @new_hop do |h|
         div.control-group
           =h.hidden_field :recipe_id

@@ -31,9 +31,14 @@ $ ->
         percent_og=Math.round(points_og / (recipe_og - 1) * 100)
         console.log("The fermentable for #{fermentable_manifest.fermentable_id} is #{fermentable.name}, #{points_og} / #{recipe_og}, which is #{percent_og}%")
         fermentables_table.append("""
-        <tr> <td><a class=\"remove-fermentable\" href=\"/fermentable_manifests/#{fermentable_manifest.id}\" data-method=\"delete\" data-remote=\"true\" rel=\"nofollow\">remove</a></td> <td>#{fermentable.name}</td> <td>#{fermentable.ppg}</td> <td>#{fermentable_manifest.amount}</td>
-        <td>#{points_og}</td>
-        <td>#{percent_og}</td>
+        <tr>
+          <td><a class=\"remove-fermentable\" href=\"/fermentable_manifests/#{fermentable_manifest.id}\" data-method=\"delete\" data-remote=\"true\" rel=\"nofollow\">remove</a></td>
+          <td class=\"ferm-name\">#{fermentable.name}</td>
+          <td class=\"ppg\">#{fermentable.ppg}</td>
+          <td class=\"amount\">#{fermentable_manifest.amount}</td>
+          <td class=\"points_og\">#{points_og}</td>
+          <td class=\"percent_og\">#{percent_og}</td>
+        </tr>
         """
         )
 
@@ -54,7 +59,13 @@ $ ->
         hop_ibu = hop_ibus(hop_manifest.boil_time, recipe_og,recipe_volume, hop_manifest.aau)
         console.log("Adding hop: #{hop.name}, #{hop_manifest.aau} aaus, #{hop_manifest.boil_time}min boil, #{hop_ibu}ibus")
         hops_table.append("""
-        <tr> <td><a class=\"remove-hop\" href=\"/hop_manifests/#{hop_manifest.id}\" data-method=\"delete\" data-remote=\"true\" rel=\"nofollow\">remove</a></td> <td>#{hop.name}</td> <td>#{hop_manifest.aau}</td> <td>#{hop_manifest.boil_time}</td> <td>#{hop_ibu}</td>
+        <tr>
+          <td><a class=\"remove-hop\" href=\"/hop_manifests/#{hop_manifest.id}\" data-method=\"delete\" data-remote=\"true\" rel=\"nofollow\">remove</a></td>
+          <td>#{hop.name}</td>
+          <td>#{hop_manifest.aau}</td>
+          <td>#{hop_manifest.boil_time}</td>
+          <td>#{hop_ibu}</td>
+        </tr>
           """
         )
 
@@ -65,8 +76,8 @@ $ ->
       )
     )
     
-  refreshRecipe = () ->
-    #first refresh the overall recipe information, og, description
+  refreshRecipeInfo = () ->
+    #note that calling .getJSON will route to recipe#show, which will update the OG of the recipe
     $.getJSON($('#recipe-header').data('url'), (recipe) ->
       console.log("og is " + recipe.og)
       $("span#recipe_og").text(recipe.og)
@@ -80,6 +91,51 @@ $ ->
       console.log("volume is " + recipe.final_volume)
       $("span#recipe_volume").text(recipe.final_volume)
     )
+
+  recalculateFermentables=() ->
+    #after a recipe change the OG points and percentages for each fermentable need to be updated
+    #the recipe information must be current or some information won't be correctly calculated
+    $("table#fermentables_table tr.fermentable_entry").each ( (index, entry) ->
+      entry_oz = $(this).find("td.amount").text()
+      entry_ppg = $(this).find("td.ppg").text()
+      entry_points_og = oz_to_pts_og(entry_oz,recipe_volume,entry_ppg)
+      entry_percent_og =Math.round(entry_points_og / (recipe_og - 1) * 100)
+      console.log("#{entry_oz}oz at #{entry_ppg}ppg, #{entry_points_og}pts og making #{entry_percent_og} of total")
+
+      $(this).find("td.points_og").text(entry_points_og)
+      $(this).find("td.percent_og").text(entry_percent_og)
+
+    )
+
+
+  recalculateHops=() ->
+    #after a recipe change the IBU numbers for each hop may need to be updated based on new OG, etc
+    #the recipe should also be updated to account for a new total IBU number
+    total_ibus=0.0
+    $("table#hops_table tr.hop_entry").each ( (index,entry) ->
+      entry_aau= $(this).find("td.aau").text()
+      entry_boil_time= $(this).find("td.boil_time").text()
+      entry_ibu = hop_ibus(entry_boil_time,recipe_og,recipe_volume,entry_aau)
+      console.log("Hop with #{entry_aau}aaus for #{entry_boil_time}minutes yielding #{entry_ibu}ibus")
+      $(this).find("td.ibu").text(entry_ibu)
+      total_ibus += parseFloat(entry_ibu)
+    )
+    console.log("total ibus #{total_ibus.toFixed(1)}")
+    $.ajax(
+      type: 'PUT'
+      url: $('#recipe-header').data('url')
+      data:
+        recipe:
+          ibu: Math.round(total_ibus)
+    )
+    refreshRecipeInfo()
+
+    
+
+
+
+  refreshRecipe = () ->
+    refreshRecipeInfo()
     refreshFermentables()
     refreshHops()
 
@@ -110,9 +166,16 @@ $ ->
     )
   )
   $("a.remove-fermentable").live("click", () ->
-    refreshRecipe()
+    $(this).closest("tr").remove()
+    recalculateFermentables()
   )
-  refreshRecipe()
+  $("a.remove-hop").live("click", () ->
+    $(this).closest("tr").remove()
+    recalculateHops()
+  )
+  refreshRecipeInfo()
+  recalculateFermentables()
+  recalculateHops()
 
   #Helper functions
 percentOG = (points, recipe_volume, og) ->
@@ -122,6 +185,7 @@ percentOG = (points, recipe_volume, og) ->
 oz_to_pts_og = (oz, recipe_volume, ppg) ->
   points = oz * ppg / 16
   og= points / 1000 / recipe_volume
+  og.toFixed(3)
 
 points_og_to_oz = (og, recipe_volume, ppg) ->
   points = og * 1000 * recipe_volume
