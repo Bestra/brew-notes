@@ -17,7 +17,8 @@ class HopManifestsController < ApplicationController
     @recipe = @hop_man.recipe
     if @hop_man.save(params[:hop_manifest])
       respond_to do |format|
-        format.html { redirect_to @recipe}
+        format.html { render json: @hop_man }
+        format.json { render json: @hop_man }
       end
     else
       redirect_to @recipes
@@ -38,8 +39,8 @@ class HopManifestsController < ApplicationController
     @h = HopManifest.find(params[:id])
     @recipe = @h.recipe
     @h.destroy
-    respond_to do |format| 
-      redirect_to @recipe
+    respond_to do |format|
+      format.html {redirect_to @recipe}
     end
   end
 end

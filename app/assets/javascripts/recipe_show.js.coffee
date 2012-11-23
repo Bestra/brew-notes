@@ -4,19 +4,8 @@ $ ->
   recipe_og = $("span#recipe_og").text()
   console.log("The recipe og from the initial DOM is #{recipe_og}")
   fermentables_table = $("table#fermentables_table tbody")
-  hops_table = $("table#hops_table")
+  hops_table = $("table#hops_table tbody")
 
-  $("button#oz").click ->
-    $("input#fermentable_manifest_amount").attr("placeholder","ounces")
-
-  $("button#og").click ->
-    $("input#fermentable_manifest_amount").attr("placeholder","pts OG")
-  
-  $("button#aau").click ->
-    $("input#hop_manifest_aau").attr("placeholder","AAUs")
- 
-  $("button#ibu").click ->
-    $("input#hop_manifest_aau").attr("placeholder","IBUs")
 
 
   refreshFermentables = () ->
@@ -125,18 +114,31 @@ $ ->
       $(this).find("td.ibu").text(entry_ibu)
       total_ibus += parseFloat(entry_ibu)
     )
-    console.log("total ibus #{total_ibus.toFixed(1)}")
+    total_ibus = total_ibus.toFixed(1)
+    console.log("total ibus #{total_ibus}")
     $.ajax(
       type: 'PUT'
       url: $('#recipe-header').data('url')
       data:
         recipe:
-          ibu: Math.round(total_ibus)
+          ibu: total_ibus
     )
     recipe_ibu=total_ibus
     $("span#recipe_ibu").text(total_ibus)
 
+  $("button#oz").click ->
+    $("input#fermentable_manifest_amount").attr("placeholder","ounces")
+
+  $("button#og").click ->
+    $("input#fermentable_manifest_amount").attr("placeholder","pts OG")
+  
+  $("button#aau").click ->
+    $("input#hop_manifest_aau").attr("placeholder","AAUs")
+ 
+  $("button#ibu").click ->
+    $("input#hop_manifest_aau").attr("placeholder","IBUs")
     
+
   $("form#new_fermentable_manifest").submit( (e) ->
     e.preventDefault()
     amount_input = $(this).find("input#fermentable_manifest_amount")
@@ -171,9 +173,49 @@ $ ->
         """
           )
           refreshRecipeInfo()
+          $("form#new_fermentable_manifest").get(0).reset()
       )
     )
   )
+
+  $("form#new_hop_manifest").submit( (e) ->
+    e.preventDefault()
+    amount_input = $(this).find("input#hop_manifest_aau").val()
+    hop_id = $(this).find("select#hop_manifest_hop_id").val()
+    hop_name = $(this).find("select#hop_manifest_hop_id option[value=#{hop_id}]").text()
+    recipe_id = $("form#new_fermentable_manifest input#fermentable_manifest_recipe_id").val()
+    boil_time = $(this).find("input#hop_manifest_boil_time").val()
+    if $("form#new_hop_manifest button#aau").hasClass("active")
+      hop_aau = amount_input
+    else
+      #for now presume that the input is ibus if the aau button isn't selected
+      hop_aau = hop_aaus_from_ibus(boil_time, recipe_og, recipe_volume, amount_input)
+    $.post('/hop_manifests',
+      hop_manifest:
+        hop_id:hop_id
+        aau:hop_aau
+        boil_time:boil_time
+        recipe_id:recipe_id
+      (data) ->
+        new_manifest = $.parseJSON(data)
+        hops_table.append("""
+        <tr class = \"hop_entry\" id=\"#{new_manifest.id}\" >
+            <td><a class=\"remove-hop\" href=\"/hop_manifests/#{new_manifest.id}\" data-method=\"delete\" data-remote=\"true\" rel=\"nofollow\">remove</a></td>
+            <td class=\"name\">#{hop_name}</td>
+            <td class=\"aau\">#{hop_aau}</td>
+            <td class=\"boil_time\">#{boil_time}</td>
+            <td class=\"ibu\">#{hop_ibus(boil_time, recipe_og, recipe_volume, hop_aau)}</td>
+        """
+        )
+        refreshRecipeInfo()
+        $("form#new_hop_manifest").get(0).reset()
+    )
+  )
+    
+
+
+
+
   $("a.remove-fermentable").live("click", () ->
     $(this).closest("tr").remove()
     refreshRecipeInfo()
@@ -182,7 +224,7 @@ $ ->
   $("a.remove-hop").live("click", () ->
     $(this).closest("tr").remove()
     refreshRecipeInfo()
-    recalculateHops()
+    #recalculateHops()
   )
   
   #----When the page is initially loaded do the stuff below
@@ -201,18 +243,27 @@ oz_to_pts_og = (oz, recipe_volume, ppg) ->
 points_og_to_oz = (og, recipe_volume, ppg) ->
   points = og * 1000 * recipe_volume
   oz = points / ppg * 16
+  Math.round(oz)
 
-hop_ibus = (boil_time, boil_gravity,boil_volume,hop_aaus) ->
-  #first calculate hop utilization by Tinseth
+hop_utilization = (boil_time,boil_gravity) ->
   #U = f(G)xf(T)
   #f(G)= 1.65 * 1.25E-4^(Gb -1) where Gb is the boil gravity
   #f(T)=(1-e^(-0.04*T))/4.15 where T is the boil time in minutes
   fG= 1.65 * Math.pow(0.000125 , (boil_gravity - 1))
   fT= (1 - Math.exp(-0.04 * boil_time))/4.15
   utilization = fG * fT
+
+hop_ibus = (boil_time, boil_gravity,boil_volume,hop_aaus) ->
+  #first calculate hop utilization by Tinseth
+  utilization = hop_utilization(boil_time,boil_gravity)
   console.log("Utilization: #{utilization}")
   ibus= hop_aaus * utilization * 74.89 / boil_volume
   ibus.toFixed(1)
+
+hop_aaus_from_ibus = (boil_time, boil_gravity,boil_volume,hop_ibus) ->
+  utilization = hop_utilization(boil_time,boil_gravity)
+  aaus= hop_ibus / utilization / 74.89 * boil_volume
+  aaus.toFixed(1)
 
 
 

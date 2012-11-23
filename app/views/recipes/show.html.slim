@@ -67,7 +67,7 @@
       - @recipe.hop_manifests.each do |hm|
         -if !hm.hop.nil?
           tr.hop_entry
-            td =link_to "remove", hm, :method => :delete
+            td =link_to "remove", hm, :method => :delete, remote: true, class: "remove-hop"
             td.name= hm.hop.name
             td.aau = hm.aau
             td.boil_time = hm.boil_time
@@ -80,10 +80,6 @@
           span id="hop_type_buttons" class="btn-group" data-toggle="buttons-radio"
             button id="aau" type="button" class="btn active"AAU 
             button id="ibu" type="button" class="btn"IBU
-          /span.hop-amount 
-            span#AAULabel.label.hop-input-label.label-success AAU 
-            span  <b>\ </b>
-            span#IBULabel.label.hop-input-label.label-default IBU  
           =h.text_field :boil_time,  :class => 'input-mini', placeholder: "minutes"
           span boil time 
           =h.button :submit, "Add"
