@@ -3,7 +3,7 @@ $ ->
   recipe_volume = $("span#recipe_volume").text()
   recipe_og = $("span#recipe_og").text()
   console.log("The recipe og from the initial DOM is #{recipe_og}")
-  fermentables_table = $("table#fermentables_table")
+  fermentables_table = $("table#fermentables_table tbody")
   hops_table = $("table#hops_table")
 
   $("button#oz").click ->
@@ -78,6 +78,7 @@ $ ->
     
   refreshRecipeInfo = () ->
     #note that calling .getJSON will route to recipe#show, which will update the OG of the recipe
+    console.log("refreshing recipe")
     $.getJSON($('#recipe-header').data('url'), (recipe) ->
       console.log("og is " + recipe.og)
       $("span#recipe_og").text(recipe.og)
@@ -90,17 +91,20 @@ $ ->
       recipe_ibu=recipe.ibu
       console.log("volume is " + recipe.final_volume)
       $("span#recipe_volume").text(recipe.final_volume)
+      recalculateFermentables()
+      recalculateHops()
     )
 
   recalculateFermentables=() ->
     #after a recipe change the OG points and percentages for each fermentable need to be updated
     #the recipe information must be current or some information won't be correctly calculated
+    console.log("recalculating fermentable values")
     $("table#fermentables_table tr.fermentable_entry").each ( (index, entry) ->
       entry_oz = $(this).find("td.amount").text()
       entry_ppg = $(this).find("td.ppg").text()
       entry_points_og = oz_to_pts_og(entry_oz,recipe_volume,entry_ppg)
       entry_percent_og =Math.round(entry_points_og / (recipe_og - 1) * 100)
-      console.log("#{entry_oz}oz at #{entry_ppg}ppg, #{entry_points_og}pts og making #{entry_percent_og} of total")
+      console.log("#{entry_oz}oz at #{entry_ppg}ppg, #{entry_points_og}pts og / #{recipe_og} making #{entry_percent_og} of total")
 
       $(this).find("td.points_og").text(entry_points_og)
       $(this).find("td.percent_og").text(entry_percent_og)
@@ -112,6 +116,7 @@ $ ->
     #after a recipe change the IBU numbers for each hop may need to be updated based on new OG, etc
     #the recipe should also be updated to account for a new total IBU number
     total_ibus=0.0
+    console.log("recalculating hop ibus")
     $("table#hops_table tr.hop_entry").each ( (index,entry) ->
       entry_aau= $(this).find("td.aau").text()
       entry_boil_time= $(this).find("td.boil_time").text()
@@ -128,18 +133,10 @@ $ ->
         recipe:
           ibu: Math.round(total_ibus)
     )
-    refreshRecipeInfo()
+    recipe_ibu=total_ibus
+    $("span#recipe_ibu").text(total_ibus)
 
     
-
-
-
-  refreshRecipe = () ->
-    refreshRecipeInfo()
-    refreshFermentables()
-    refreshHops()
-
-
   $("form#new_fermentable_manifest").submit( (e) ->
     e.preventDefault()
     amount_input = $(this).find("input#fermentable_manifest_amount")
@@ -161,21 +158,35 @@ $ ->
           amount:Math.round(fermentable_oz)
           recipe_id:$("form#new_fermentable_manifest input#fermentable_manifest_recipe_id").val()
         (data) ->
-          refreshRecipe()
+          new_manifest = $.parseJSON(data)
+          fermentables_table.append("""
+          <tr class =\"fermentable_entry\" id=\"#{new_manifest.id}\" >
+            <td><a class=\"remove-fermentable\" href=\"/fermentable_manifests/#{new_manifest.id}\" data-method=\"delete\" data-remote=\"true\" rel=\"nofollow\">remove</a></td>
+          <td class=\"ferm-name\">#{fermentable.name}</td>
+          <td class=\"ppg\">#{fermentable.ppg}</td>
+          <td class=\"amount\">#{fermentable_oz}</td>
+          <td class=\"points_og\">  </td>
+          <td class=\"percent_og\">  </td>
+        </tr>
+        """
+          )
+          refreshRecipeInfo()
       )
     )
   )
   $("a.remove-fermentable").live("click", () ->
     $(this).closest("tr").remove()
+    refreshRecipeInfo()
     recalculateFermentables()
   )
   $("a.remove-hop").live("click", () ->
     $(this).closest("tr").remove()
+    refreshRecipeInfo()
     recalculateHops()
   )
+  
+  #----When the page is initially loaded do the stuff below
   refreshRecipeInfo()
-  recalculateFermentables()
-  recalculateHops()
 
   #Helper functions
 percentOG = (points, recipe_volume, og) ->

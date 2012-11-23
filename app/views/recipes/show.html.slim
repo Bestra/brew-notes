@@ -32,7 +32,7 @@
       - @recipe.fermentable_manifests.each do |ferm|
         -if !ferm.fermentable.nil?
           tr.fermentable_entry id="#{ferm.id}" data-url=fermentable_manifest_url(ferm.id)
-            td =link_to "remove", ferm, method: "delete", remote: true
+            td =link_to "remove", ferm, method: "delete", remote: true, class: "remove-fermentable"
             td.ferm-name data-title="#{ferm.fermentable.ppg} PPG" = ferm.fermentable.name
             td.ppg = ferm.fermentable.ppg
             td.amount = ferm.amount

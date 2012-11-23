@@ -15,7 +15,8 @@ class FermentableManifestsController < ApplicationController
     @recipe = @fm.recipe
     if @fm.save(params[:fermentable_manifest])
       respond_to do |format|
-        format.html {redirect_to @recipe}
+        format.html {render json: @fm}
+        format.json { render json: @fm }
       end
     else 
       redirect_to @recipes
