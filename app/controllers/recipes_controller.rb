@@ -1,21 +1,33 @@
 class RecipesController < ApplicationController
   before_filter :update_recipe_og, :only => :show
   def new
+    @recipe = Recipe.new
   end
 
   def create
+    @recipe = Recipe.new(params[:recipe])
+    @recipe.ibu = 0
+    if @recipe.save
+      redirect_to @recipe
+    else
+      render action: 'new'
+    end
   end
 
   def edit
+    @recipe = Recipe.find(params[:id])
   end
 
   def update
     @recipe = Recipe.find(params[:id])
     if @recipe.update_attributes(params[:recipe])
-      respond_to do |format|
-       # format.html {redirect_to @recipe, :notice =>"Successfully updated"}
-        format.json {render json: @recipe}
+      if params[:update_type]
+        render json: @recipe
+      else
+        redirect_to @recipe, :notice =>"Successfully updated"
       end
+    else
+      render action: 'edit'
     end
   end
 
@@ -35,6 +47,8 @@ class RecipesController < ApplicationController
   end
 
   def destroy
+    @recipe = Recipe.find(params[:id]).destroy
+    redirect_to recipes_path
   end
   private
     def update_recipe_og

@@ -122,6 +122,7 @@ $ ->
       data:
         recipe:
           ibu: total_ibus
+        update_type: "json"
     )
     recipe_ibu=total_ibus
     $("span#recipe_ibu").text(total_ibus)

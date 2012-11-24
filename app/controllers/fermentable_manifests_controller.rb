@@ -13,7 +13,7 @@ class FermentableManifestsController < ApplicationController
   def create
     @fm = FermentableManifest.new(params[:fermentable_manifest])
     @recipe = @fm.recipe
-    if @fm.save(params[:fermentable_manifest])
+    if @fm.save
       respond_to do |format|
         format.html {render json: @fm}
         format.json { render json: @fm }

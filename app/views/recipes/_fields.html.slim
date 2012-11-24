@@ -1,0 +1,6 @@
+=simple_form_for @recipe do |f|
+  =f.input :name
+  =f.input :description
+  =f.input :final_volume, placeholder: "Gallons"
+  =f.input :fg, label: "Target final gravity"
+  =f.button :submit

@@ -5,7 +5,7 @@ html {
 }
 
 body { 
-  padding-top: 60px;
+//  padding-top: 60px;
 }
 
 section { 
@@ -31,10 +31,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: 3em;
+  font-size: 2.5em;
   letter-spacing: -2px;
-  margin-bottom: 30px;
-  text-align: center;
+  margin-bottom: 15px;
 }
 
 h2 {
@@ -75,6 +74,10 @@ p {
   text-align: left;
   line-height: 1;
   margin-bottom: 0px;
+}
+
+.gravity_label {
+  font-size: 1.3em;
 }
 /* Ingredients list */
 .table-title {

@@ -15,12 +15,17 @@
     p.gravity_label
       | IBU 
       span#recipe_ibu =@recipe.ibu
-    span.gravity_label#recipe_volume =@recipe.final_volume
-    |  Gallons
+    p.gravity_label
+      span.gravity_label#recipe_volume =@recipe.final_volume
+      |  Gallons
+    =link_to 'Edit recipe settings', edit_recipe_path(@recipe.id)
+.row
+  .span5
+    h3 Fermentables
+  .span3
+    span.small.pull-right Assume 70% mash efficiency
 .row
   .span8
-    p Fermentables
-    p Assume 70% mash efficiency
     table.table#fermentables_table
       tr
         th 
@@ -56,7 +61,7 @@
 
 .row
   .span8
-    p Hops
+    h3 Hops
     table.table#hops_table
       tr
         th

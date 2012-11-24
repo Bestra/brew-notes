@@ -1,6 +1,13 @@
 h1 Recipes
 .row
-  .span6
-    - @recipes.each do |recipe|
-      =link_to "#{recipe.name}", recipe
+  .span2 = link_to raw('<i class="icon-plus"></i>'), new_recipe_path, class: "btn"
+.row
+  .span10
+      - @recipes.each do |recipe|
+        .row
+         .span2=link_to "#{recipe.name}", recipe
+         .span5=recipe.description
+         .span1 OG: #{recipe.og}
+         .span1 IBU: #{recipe.ibu}
+
 

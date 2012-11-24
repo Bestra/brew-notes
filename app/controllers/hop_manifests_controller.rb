@@ -15,7 +15,7 @@ class HopManifestsController < ApplicationController
   def create
     @hop_man = HopManifest.new(params[:hop_manifest])
     @recipe = @hop_man.recipe
-    if @hop_man.save(params[:hop_manifest])
+    if @hop_man.save
       respond_to do |format|
         format.html { render json: @hop_man }
         format.json { render json: @hop_man }
